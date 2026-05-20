@@ -2,6 +2,15 @@ from playwright.async_api import async_playwright
 
 
 async def get_part_details(part_number: str) -> dict:
+    """Get detailed information about a specific PartSelect part.
+    
+    Args:
+        part_number: The PS part number (e.g. PS11752778)
+    
+    Returns:
+        dict with part_name, price, availability, symptoms, 
+        image_url, video_url and other part details
+    """
     browser = None
     try:
         async with async_playwright() as p:

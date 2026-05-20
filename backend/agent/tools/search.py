@@ -4,6 +4,15 @@ from playwright.async_api import async_playwright
 
 
 async def search_parts(query: str, appliance_filter: str) -> dict:
+    """Search for refrigerator or dishwasher parts on PartSelect.
+
+    Args:
+        query: Search terms describing the part needed
+        appliance_filter: Must be 'refrigerator' or 'dishwasher'
+
+    Returns:
+        dict with results list, count, query, and appliance fields
+    """
     browser = None
     try:
         normalized = appliance_filter.strip().lower()

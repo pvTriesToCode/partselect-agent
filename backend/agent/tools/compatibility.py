@@ -2,6 +2,15 @@ from playwright.async_api import async_playwright
 
 
 async def check_compatibility(part_number: str, model_number: str) -> dict:
+    """Check if a part is compatible with a specific appliance model.
+    
+    Args:
+        part_number: The PS part number (e.g. PS11752778)
+        model_number: The appliance model number (e.g. WDT780SAEM1)
+    
+    Returns:
+        dict with compatible bool, message, model_name, model_url
+    """
     browser = None
     model_url = f"https://www.partselect.com/Models/{model_number}/Parts/"
     try:

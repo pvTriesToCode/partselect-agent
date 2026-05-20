@@ -7,6 +7,16 @@ AI_DISCLAIMER = "⚠️ Repair guidance provided by AI. Please use discretion an
 
 
 async def get_repair_guide(symptom: str, appliance_type: str) -> dict:
+    """Get a repair guide for a refrigerator or dishwasher symptom.
+    
+    Args:
+        symptom: Description of the problem (e.g. 'ice maker not working')
+        appliance_type: Must be 'refrigerator' or 'dishwasher'
+    
+    Returns:
+        dict with symptom_matched, parts, video_url, guide_url,
+        ai_disclaimer and other repair guide details
+    """
     browser = None
     try:
         normalized = appliance_type.strip().lower()

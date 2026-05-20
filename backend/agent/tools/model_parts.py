@@ -6,6 +6,14 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 
 async def get_model_parts(model_number: str) -> dict:
+    """Get all parts for a specific appliance model number.
+    
+    Args:
+        model_number: The appliance model number (e.g. WDT780SAEM1)
+    
+    Returns:
+        dict with model_name, parts list, count, and model_url
+    """
     browser = None
     model_url = f"https://www.partselect.com/Models/{model_number}/Parts/"
     try:
