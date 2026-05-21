@@ -21,6 +21,13 @@ async def get_part_details(part_number: str) -> dict:
             await page.wait_for_selector('h1', timeout=20000)
             await page.wait_for_timeout(3000)
 
+            # wait for product details section to fully render
+            try:
+                await page.wait_for_selector('div.pd__wrap', timeout=10000)
+                await page.wait_for_timeout(1000)
+            except Exception:
+                pass
+
             part_name = ""
             try:
                 part_name = await page.locator("h1").first.inner_text()
@@ -57,6 +64,13 @@ async def get_part_details(part_number: str) -> dict:
             except Exception:
                 pass
 
+            description = ""
+            try:
+                description = await page.locator('div.pd__wrap').nth(0).locator('div[itemprop="description"]').first.text_content(timeout=5000)
+                description = description.strip()
+            except Exception:
+                pass
+
             install_difficulty = ""
             try:
                 install_difficulty = await page.locator("div.d-flex p").nth(0).inner_text()
@@ -71,15 +85,25 @@ async def get_part_details(part_number: str) -> dict:
 
             symptoms = []
             try:
-                symptom_items = page.locator('div.pd__wrap').nth(1).locator('div.col-md-6.mt-3').nth(0).locator('li.mb-1')
-                symptoms = await symptom_items.all_text_contents()
+                sections = await page.locator('div.pd__wrap div.col-md-6.mt-3').all()
+                for section in sections:
+                    heading = await section.locator('div.bold.mb-1').first.text_content(timeout=2000)
+                    if 'fixes the following symptoms' in heading.lower():
+                        items = await section.locator('li.mb-1').all_text_contents()
+                        symptoms = [s.strip() for s in items if s.strip()]
+                        break
             except Exception:
                 pass
 
             product_types = []
             try:
-                product_type_items = page.locator('div.pd__wrap').nth(1).locator('div.col-md-6.mt-3').nth(1).locator('li.mb-1')
-                product_types = await product_type_items.all_text_contents()
+                sections = await page.locator('div.pd__wrap div.col-md-6.mt-3').all()
+                for section in sections:
+                    heading = await section.locator('div.bold.mb-1').first.text_content(timeout=2000)
+                    if 'works with the following products' in heading.lower():
+                        items = await section.locator('li.mb-1').all_text_contents()
+                        product_types = [s.strip() for s in items if s.strip()]
+                        break
             except Exception:
                 pass
 
@@ -109,6 +133,7 @@ async def get_part_details(part_number: str) -> dict:
                 "price": price.strip(),
                 "availability": availability.strip(),
                 "brand": brand.strip(),
+                "description": description,
                 "install_difficulty": install_difficulty.strip(),
                 "install_time": install_time.strip(),
                 "symptoms": symptoms,

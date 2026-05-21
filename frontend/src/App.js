@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import ChatWindow from "./components/ChatWindow";
 
 function App() {
-
   return (
     <div className="App">
-      <div className="heading">
-        Instalily Case Study
-      </div>
-        <ChatWindow/>
+      <header className="header">
+        <div className="header-inner">
+          <img src="/partselect-logo.png" alt="PartSelect" height="36" />
+        </div>
+      </header>
+      <ChatWindow />
     </div>
   );
 }
