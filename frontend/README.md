@@ -1,70 +1,72 @@
-# Getting Started with Create React App
+# PartSelect Chat Agent — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React chat interface for the PartSelect AI assistant, with SSE streaming and rich part/repair cards.
 
-## Available Scripts
+## Overview
 
-In the project directory, you can run:
+This is a Create React App frontend that streams responses token-by-token from the FastAPI backend via Server-Sent Events. It renders assistant messages as markdown and attaches rich UI cards — PartCards and VideoCards — alongside relevant messages based on metadata returned in the SSE stream. The UI uses PartSelect's teal and amber brand colors throughout.
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React 18 (Create React App)
+- react-markdown + remark-gfm for markdown rendering
+- SSE via native `fetch` ReadableStream (no external SSE library)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project Structure
 
-### `npm test`
+```
+frontend/
+  src/
+    api/api.js          — SSE fetch, conversation history management
+    components/
+      ChatWindow.js     — main chat UI, streaming, loading state
+      ChatWindow.css    — styles and responsive breakpoints
+      PartCard.js       — part image, price, buy button, video thumbnail
+      PartCard.css
+      VideoCard.js      — YouTube thumbnail, repair guide link
+      VideoCard.css
+  public/
+    partselect-logo.png — PartSelect logo used in header and as favicon
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Key Components
 
-### `npm run build`
+### ChatWindow.js
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Manages the full chat lifecycle. Messages are stored as a list alongside a parallel `cardMetadata` array keyed by message index — when metadata arrives for message N, the card for that index is set and rendered below the message bubble. Streaming is handled via `onToken` and `onMetadata` callbacks passed into `getAIMessage`. While a tool call is running, `isLoading` is true and a cycling array of loading messages rotates every 1.5 seconds via `setInterval` to give feedback during the 8–30s tool execution window. The input and send button are disabled during loading.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### api.js
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Holds a module-level `conversationHistory` array that persists across calls within a session. On each send, the user message is appended to history and the full list is POSTed to `/chat/stream`. The response body is read as a `ReadableStream`, decoded line by line. Each `data: {"token": "..."}` event calls `onToken` with the accumulated partial content so far. A `data: {"metadata": {...}}` event calls `onMetadata` to attach card data. A `data: {"done": [...]}` event replaces `conversationHistory` with the updated list returned by the backend.
 
-### `npm run eject`
+### PartCard.js
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Renders when `metadata.type === "part"`. Displays the part image, name, and part number, followed by price and an availability badge (green for in-stock, grey otherwise). A buy button links directly to the part's PartSelect product page. If `metadata.video_url` is set, a YouTube thumbnail is shown below the part details with a play icon overlay.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### VideoCard.js
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Renders when `metadata.type === "repair"`. Shows a YouTube thumbnail generated from the video ID with a play button overlay, a symptom label, and a link to the full PartSelect repair guide page.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Streaming Architecture
 
-## Learn More
+1. `ChatWindow` calls `getAIMessage(input, onToken, onMetadata)`
+2. `api.js` POSTs to `/chat/stream` and opens the response as a `ReadableStream`
+3. Each `data: {"token": "..."}` event fires `onToken` with the cumulative partial string → the last message in state is updated in place, rendering tokens as they arrive
+4. A `data: {"metadata": {...}}` event fires `onMetadata` → stored in `cardMetadata[assistantIndex]`, which triggers the appropriate card to appear below the message
+5. A `data: {"done": [...]}` event writes the completed conversation back to `conversationHistory` for the next request
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Branding
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Primary:** `#337778` (teal) — header border, user bubble, send button, assistant message accent
+- **Accent:** `#F5A623` (amber) — box shadows, hover states
+- **Layout:** centered at 70% width, capped at 900px max-width
+- **Responsive breakpoints:** 1024px (85% width), 768px (95% width), 480px (100% width with padding)
 
-### Code Splitting
+## Running
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm install
+npm start
+```
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Opens at [http://localhost:3000](http://localhost:3000). Requires the backend running at `http://localhost:8000`.
