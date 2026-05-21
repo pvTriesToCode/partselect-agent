@@ -9,16 +9,16 @@ The PartSelect Chat Agent is a conversational assistant that helps customers fin
 ## Demo
 
 ### Welcome Screen
-![Welcome Screen](assets/screenshots/welcome.png)
+![Welcome Screen](assets/welcome.png)
 
 ### Reponse Loading
-![Compatibility Check](assets/screenshots/loading.png)
+![Compatibility Check](assets/loading.png)
 
 ### Part Details
-![Part Details](assets/screenshots/part-details.png)
+![Part Details](assets/part-details.png)
 
 ### Repair Guide and Compatibility Check
-![Repair Guide](assets/screenshots/comp-repair.png)
+![Repair Guide](assets/comp-repair.png)
 
 
 
