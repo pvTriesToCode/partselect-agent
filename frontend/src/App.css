@@ -9,6 +9,7 @@
 body {
   margin: 0;
   background: #f8f8f8;
+  overflow-x: hidden;
 }
 
 .App {
@@ -37,4 +38,13 @@ body {
   margin: 0 auto;
   display: flex;
   align-items: center;
+}
+
+@media (max-width: 480px) {
+  .header-inner img {
+    height: 28px;
+  }
+  .header-inner {
+    padding: 0 12px;
+  }
 }

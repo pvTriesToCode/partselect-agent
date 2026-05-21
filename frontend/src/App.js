@@ -7,10 +7,12 @@ function App() {
     <div className="App">
       <header className="header">
         <div className="header-inner">
-          <img src="/partselect-logo.png" alt="PartSelect" height="36" />
+          <img src="/partselect-logo.png" alt="PartSelect" height="36" width="auto" />
         </div>
       </header>
-      <ChatWindow />
+      <main>
+        <ChatWindow />
+      </main>
     </div>
   );
 }

@@ -75,16 +75,17 @@ def get_repair_guide_tool(symptom: str, appliance_type: str) -> dict:
 
 
 @tool
-def get_model_parts_tool(model_number: str) -> dict:
-    """Get all parts for a specific appliance model number.
+def get_model_parts_tool(model_number: str, search_term: str = "") -> dict:
+    """Get all parts for a specific appliance model number, optionally filtered by search term.
 
     Args:
         model_number: The appliance model number (e.g. WDT780SAEM1)
+        search_term: Optional part description to search within the model's parts (e.g. 'heating element', 'door seal')
 
     Returns:
         dict with model_name, parts list, count, and model_url
     """
-    return asyncio.run(get_model_parts(model_number))
+    return asyncio.run(get_model_parts(model_number, search_term))
 
 
 tools = [search_parts_tool, get_part_details_tool, check_compatibility_tool, get_repair_guide_tool, get_model_parts_tool]

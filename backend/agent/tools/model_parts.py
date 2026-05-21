@@ -1,21 +1,26 @@
 import re
+from urllib.parse import quote_plus
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
 
-async def get_model_parts(model_number: str) -> dict:
-    """Get all parts for a specific appliance model number.
-    
+async def get_model_parts(model_number: str, search_term: str = "") -> dict:
+    """Get all parts for a specific appliance model number, optionally filtered by search term.
+
     Args:
         model_number: The appliance model number (e.g. WDT780SAEM1)
-    
+        search_term: Optional part description to search within the model's parts (e.g. 'heating element')
+
     Returns:
         dict with model_name, parts list, count, and model_url
     """
     browser = None
-    model_url = f"https://www.partselect.com/Models/{model_number}/Parts/"
+    if search_term:
+        url = f"https://www.partselect.com/Models/{model_number}/Parts/?SearchTerm={quote_plus(search_term)}"
+    else:
+        url = f"https://www.partselect.com/Models/{model_number}/Parts/"
     try:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=False)
@@ -23,7 +28,7 @@ async def get_model_parts(model_number: str) -> dict:
             page = await context.new_page()
             await Stealth().apply_stealth_async(page)
 
-            await page.goto(model_url)
+            await page.goto(url)
             await page.wait_for_load_state("domcontentloaded")
             await page.wait_for_timeout(3000)
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -90,7 +95,7 @@ async def get_model_parts(model_number: str) -> dict:
                 "model_name": model_name,
                 "parts": parts,
                 "count": len(parts),
-                "model_url": model_url,
+                "model_url": f"https://www.partselect.com/Models/{model_number}/Parts/",
             }
     except Exception as e:
         if browser:

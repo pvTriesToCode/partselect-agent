@@ -106,7 +106,7 @@ You can just describe your issue and I'll figure out the rest. What's going on w
         return (
         <div key={index} className={`${message.role}-message-container`}>
           <div className={`message ${message.role}-message`}>
-            {isLastMessage && isLoading ? (
+            {isLastMessage && isLoading && !message.content ? (
               <div className="thinking-indicator">
                 <span className="thinking-dot"></span>
                 <span className="thinking-dot"></span>
@@ -136,6 +136,7 @@ You can just describe your issue and I'll figure out the rest. What's going on w
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message..."
             disabled={isLoading}
+            aria-label="Type your message"
             onKeyPress={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 handleSend(input);
@@ -147,6 +148,7 @@ You can just describe your issue and I'll figure out the rest. What's going on w
             className="send-button"
             onClick={() => handleSend(input)}
             disabled={isLoading}
+            aria-label="Send message"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
